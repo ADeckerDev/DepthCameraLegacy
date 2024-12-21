@@ -1,6 +1,3 @@
-# This code is all chatGPT, im using it to visualize my palettes during development
-# TODO: Delete this entire file
-
 import tkinter as tk
 from PIL import Image, ImageTk
 from palette import *

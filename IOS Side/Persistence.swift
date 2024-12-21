@@ -1,10 +1,3 @@
-//
-//  Persistence.swift
-//  depthCamera
-//
-//  Created by Andrew Decker on 12/4/24.
-//
-
 import CoreData
 
 struct PersistenceController {

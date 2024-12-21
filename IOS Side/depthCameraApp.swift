@@ -1,10 +1,3 @@
-//
-//  depthCameraApp.swift
-//  depthCamera
-//
-//  Created by Andrew Decker on 12/4/24.
-//
-
 import SwiftUI
 
 @main
