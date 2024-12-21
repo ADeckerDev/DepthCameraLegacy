@@ -1,6 +1,6 @@
 # DepthCameraLegacy
 
-I am currently developing a project for taking pictures similar to [depth maps](https://en.wikipedia.org/wiki/Depth_map) Using an Iphone. I have decided that this project would be more useful in swift as an app, so this python code has become antiquated. 
+I am currently developing a project for taking pictures similar to [depth maps](https://en.wikipedia.org/wiki/Depth_map) Using an Iphone. I have decided that this project would be more useful in swift as an app, so this python code has become antiquated. The new and improved repository for this project is located [here](https://github.com/ADeckerDev/Depth-Camera/blob/main/README.md)
 
 ## Users Guide-Setup
 
@@ -23,4 +23,6 @@ The IOS Side of the code will most certainly be the most difficult to set up. Th
 
 ### Python Side
 
-The python script is run through [depthImageProcessor.py](depthImageProcessor.py). Since this is a proof of concept, there is no UI. Just change the variables in the file itself. 
+The python script is run through [depthImageProcessor.py](depthImageProcessor.py). Since this is a proof of concept, there is no user input. Just change the variables at the top of the file in the file itself. It works using the [tkinter](https://docs.python.org/3/library/tkinter.html) module.
+
+## [The Future For this project](https://github.com/ADeckerDev/Depth-Camera/blob/main/README.md)
