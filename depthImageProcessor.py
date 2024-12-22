@@ -4,10 +4,9 @@ import tkinter as tk
 
 
 path = "Bass.txt"
-compress = False
 scale = 5
 
-pal = cos(x_scale=scale)#cos(x_scale=scale)
+pal = cos(x_scale=scale)
 
 
 
