@@ -1,3 +1,5 @@
+##WARNING I NEVER GOT stepRender To work
+
 from palette import *
 from PIL import Image, ImageDraw
 import tkinter as tk

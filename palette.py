@@ -8,7 +8,7 @@ def rgb_to_hex(rgb):
 
 
 class Palette: # starter code
-    def __init__(self, scale):
+    def __init__(self):
         if type(self) is Palette:
             raise NotImplementedError("Palette is an abstract class and must be extended")
         self.num_colors = scale
@@ -19,7 +19,24 @@ class Palette: # starter code
 
     def __len__(self):
         return self.num_colors
-    
+
+    def loop(self, request):
+        x = request / float(self.num_colors)
+        x = math.floor(x)
+        index = request - (x * self.num_colors)
+        if x % 2 == 1:  # Reverse index if odd
+            index = self.num_colors - index - 1
+
+        return self.get_color(index)
+
+MAX_COLORS_PER_COLOR = 256 #this represents the maximum number of useful colors which can be made via linear interpolation without repeats
+
+class singular_linear_interpolation(Palette):
+    def __init__(self, start_color, end_color):
+        self.num_colors = MAX_COLORS_PER_COLOR
+        self.start_color = start_color
+        self.end_color = end_color
+
     def loop(self, request):
         x = request / float(self.num_colors)
         x = math.floor(x)
@@ -28,15 +45,7 @@ class Palette: # starter code
             index = self.num_colors - index -1
 
         return self.get_color(index) # its kinda like recursion
-    
-MAX_COLORS_PER_COLOR = 256 #this represents the maximum number of useful colors which can be made via linear interpolation without repeats
 
-class singular_linear_interpolation(Palette):
-    def __init__(self, start_color, end_color,  scale):
-        self.scale = int(scale)
-        self.start_color = start_color
-        self.end_color = end_color
-    
     def __lerp_color__(self, color1, color2, x):
         r1, g1, b1 = color1
         r2, g2, b2, = color2
@@ -49,47 +58,41 @@ class singular_linear_interpolation(Palette):
 
         return [r, g, b]
 
+
     def get_color(self, n):
-        n *= self.scale
         if n > self.num_colors:
             return self.loop(n)
         
         return self.__lerp_color__(self.start_color, self.end_color, n)
     
 class multiple_linear_interpolation(Palette):
-    def __init__(self, colors, num_colors = None): 
-
+    def __init__(self, colors):
         self.colors_len = len(colors)
-        self.num_colors = (self.colors_len - 1) * MAX_COLORS_PER_COLOR
-        self.scaling_factor = None
-        num_colors = int(num_colors)
-        if num_colors < self.num_colors:
-            self.scaling_factor = self.num_colors / num_colors
+        self.num_colors = int((self.colors_len - 1) * MAX_COLORS_PER_COLOR)
 
+        # Initialize palettes for each segment
+        self.palettes = [
+            singular_linear_interpolation(colors[i], colors[i + 1])
+            for i in range(len(colors) - 1)
+        ]
 
-        self.palettes = []
-        for i in range(len(colors) - 1):
-            self.palettes.append(singular_linear_interpolation(colors[i], colors[i+1]))
+    def get_color(self, n):
+        if self.num_colors < n:
+            return self.loop(n)
 
-    def loop(self, request):
-        x = request / float(self.num_colors)
-        x = math.floor(x)
-        index = request - (x * self.num_colors)
-        if x % 2 == 1: # if it is odd
-            index = self.num_colors - index -1
+        # Determine the segment and local index
+        segment_size = MAX_COLORS_PER_COLOR
+        segment = int(n // segment_size)  # Ensure integer segment index
+        local_index = n % segment_size  # Calculate local index within the segment
 
-        return self.get_color(index, False) # its kinda like recursion
+        # Clamp to last segment if out of bounds
+        if segment >= len(self.palettes):
+            segment = len(self.palettes) - 1
+            local_index = MAX_COLORS_PER_COLOR - 1
 
-    def get_color(self, n, scale = True):
-        
-        if (self.scaling_factor != None) and (scale == True):
-            n = n * self.scaling_factor
+        # Get the color from the correct palette
+        return self.palettes[segment].get_color(local_index)
 
-        for i in range(len(self.palettes)):
-            if n < (i+1) * MAX_COLORS_PER_COLOR:
-                return self.palettes[i].get_color(n-(MAX_COLORS_PER_COLOR * i))
-        
-        return self.loop(n)
 
 import colorsys
 
@@ -125,16 +128,14 @@ class hsl_cycle(Palette):
         return [r, g, b]
 
 class cos(Palette):
-    def __init__(self, offset = 0, x_scale = 1):
-        self.a = x_scale
+    def __init__(self, offset = 0):
         self.offset = offset
         
 
     def get_color(self, n):
-        a = self.a
-        r = int(128 * math.cos(((2*math.pi) / 11) * (n + self.offset) * a) + 128)
-        g = int(128 * math.cos(((2*math.pi) / 13) * (n + self.offset) * a) + 128)
-        b = int(128 * math.cos(((2*math.pi) / 17) * (n + self.offset) * a) + 128)
+        r = int(128 * math.cos(((2*math.pi) / 11) * (n + self.offset)) + 128)
+        g = int(128 * math.cos(((2*math.pi) / 13) * (n + self.offset)) + 128)
+        b = int(128 * math.cos(((2*math.pi) / 17) * (n + self.offset)) + 128)
 
         return [r, g, b]
 
@@ -142,18 +143,17 @@ class cos(Palette):
 import random
 
 class noise(Palette):
-    def __init__(self, seed = None, horizontal_scale=.01, sat=.7, lightness=.5, offset = 0):
+    def __init__(self, seed = None, sat=.7, lightness=.5, offset = 0):
         if seed == None:
             seed = random.randint(0, 10000)
         self.offset = offset
         self.seed = seed
         self.noise = PerlinNoise(seed)
-        self.horizontal_scale = horizontal_scale
         self.saturation = sat
         self.lightness = lightness
     
     def get_color(self, n):
-        noise = self.noise.get((n*self.horizontal_scale) + self.offset)
+        noise = self.noise.get((n) + self.offset)
         h = noise
         s = self.saturation
         l = self.lightness

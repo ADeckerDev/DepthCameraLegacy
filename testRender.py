@@ -2,14 +2,14 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from palette import *
 
-Request_size = 5000
+Request_size = 500
 
 # Create a Tkinter window
 root = tk.Tk()
 root.title("palette")
 
 # Create an image (100x400) with random colors for demonstration
-width, height = Request_size, 100
+width, height = Request_size, 500
 image = Image.new("RGB", (width, height), "white")
 
 start = [255, 255, 0]
@@ -19,7 +19,7 @@ fourth = [255, 255, 255]
 
 colors = [start, end, third, fourth]
 
-palette = noise(9999999)
+palette = cos(x_scale=.1)
 
 # Fill the image with a gradient for demonstration
 for x in range(width):
@@ -33,6 +33,6 @@ photo = ImageTk.PhotoImage(image)
 # Add the image to a label and display it in the Tkinter window
 label = tk.Label(root, image=photo)
 label.pack()
-
+image.save("output.png")
 # Run the Tkinter event loop
 root.mainloop()
